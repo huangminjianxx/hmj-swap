@@ -4,18 +4,21 @@ import {
     Connector,
     NFTCard,
     useAccount,
+    useProvider
   } from "@ant-design/web3";
-  import { MetaMask, WagmiWeb3ConfigProvider } from "@ant-design/web3-wagmi";
+  import { MetaMask, WagmiWeb3ConfigProvider, Hardhat, Polygon, Sepolia } from "@ant-design/web3-wagmi";
   import { Button, message } from "antd";
   import { parseEther } from "viem";
   import { createConfig, http, useReadContract, useWriteContract } from "wagmi";
-  import { mainnet } from "wagmi/chains";
   import { injected } from "wagmi/connectors";
-  
+  import { mainnet, sepolia, polygon, hardhat  } from "wagmi/chains";
   const config = createConfig({
-    chains: [mainnet],
+    chains: [mainnet, sepolia, polygon, hardhat],
     transports: {
       [mainnet.id]: http(),
+      [sepolia.id]: http(),
+      [polygon.id]: http(),
+      [hardhat.id]: http("http://127.0.0.1:8545/")
     },
     connectors: [
       injected({
@@ -23,9 +26,31 @@ import {
       }),
     ],
   });
+
+   const contractInfo = [
+      {
+        id:1,
+        name: "Ethereum",
+        contractAddress: "0xEcd0D12E21805803f70de03B72B1C162dB0898d9"
+      }, {
+        id:5,
+        name: "Sepolia",
+        contractAddress: "0x418325c3979b7f8a17678ec2463a74355bdbe72c"
+      }, {
+        id:137,
+        name: "Polygon",
+        contractAddress: "0x418325c3979b7f8a17678ec2463a74355bdbe72c"
+      },
+      {
+          id: hardhat.id,
+          name: "Hardhat",
+          contractAddress: "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512", // 这里需要替换为你本地部署后获得的地址
+      }
+    ]
   
   const CallTest = () => {
     const { account } = useAccount();
+    const { chain } = useProvider();
     const result = useReadContract({
       abi: [
         {
@@ -37,7 +62,8 @@ import {
         },
       ],
       // Sepolia test contract 0x418325c3979b7f8a17678ec2463a74355bdbe72c
-      address: "0xEcd0D12E21805803f70de03B72B1C162dB0898d9",
+      // address: "0xEcd0D12E21805803f70de03B72B1C162dB0898d9",
+      address: contractInfo.find((item) => item.id === chain?.id)?.contractAddress,
       functionName: "balanceOf",
       args: [account?.address],
     });
@@ -65,7 +91,8 @@ import {
                     outputs: [],
                   },
                 ],
-                address: "0xEcd0D12E21805803f70de03B72B1C162dB0898d9",
+                // address: "0xEcd0D12E21805803f70de03B72B1C162dB0898d9",
+                address: contractInfo.find((item) => item.id === chain?.id)?.contractAddress,
                 functionName: "mint",
                 args: [BigInt(1)],
                 value: parseEther("0.01"),
@@ -89,7 +116,7 @@ import {
   
   export default function Web3() {
     return (
-      <WagmiWeb3ConfigProvider config={config} wallets={[MetaMask()]}>
+      <WagmiWeb3ConfigProvider config={config} wallets={[MetaMask()]} chains={[Sepolia, Polygon,Hardhat]}>
         <Address format address="0xEcd0D12E21805803f70de03B72B1C162dB0898d9" />
         <NFTCard
           address="0xEcd0D12E21805803f70de03B72B1C162dB0898d9"
