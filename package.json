@@ -20,6 +20,7 @@
     "wagmi": "^2.12.26"
   },
   "devDependencies": {
+    "@types/react": "18.3.12",
     "eslint": "^8",
     "eslint-config-next": "14.0.4"
   }

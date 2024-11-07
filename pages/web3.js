@@ -6,11 +6,11 @@ import {
     useAccount,
     useProvider
   } from "@ant-design/web3";
-  import { MetaMask, WagmiWeb3ConfigProvider, Hardhat, Polygon, Sepolia } from "@ant-design/web3-wagmi";
+  import { MetaMask, WagmiWeb3ConfigProvider, Hardhat, Polygon, Sepolia,WalletConnect } from "@ant-design/web3-wagmi";
   import { Button, message } from "antd";
   import { parseEther } from "viem";
-  import { createConfig, http, useReadContract, useWriteContract } from "wagmi";
-  import { injected } from "wagmi/connectors";
+  import { createConfig, http, useReadContract, useWriteContract,useWatchContractEvent } from "wagmi";
+  import { injected , walletConnect } from "wagmi/connectors";
   import { mainnet, sepolia, polygon, hardhat  } from "wagmi/chains";
   const config = createConfig({
     chains: [mainnet, sepolia, polygon, hardhat],
@@ -24,6 +24,10 @@ import {
       injected({
         target: "metaMask",
       }),
+      walletConnect({
+              projectId: 'c07c0051c2055890eade3556618e38a6',
+              showQrModal: false,
+            }),
     ],
   });
 
@@ -116,7 +120,14 @@ import {
   
   export default function Web3() {
     return (
-      <WagmiWeb3ConfigProvider config={config} wallets={[MetaMask()]} chains={[Sepolia, Polygon,Hardhat]}>
+      <WagmiWeb3ConfigProvider 
+        config={config} 
+        wallets={[MetaMask(),WalletConnect()]} 
+        chains={[Sepolia, Polygon,Hardhat]}
+        eip6963={{
+                 autoAddInjectedWallets: true,
+               }}
+      >
         <Address format address="0xEcd0D12E21805803f70de03B72B1C162dB0898d9" />
         <NFTCard
           address="0xEcd0D12E21805803f70de03B72B1C162dB0898d9"
